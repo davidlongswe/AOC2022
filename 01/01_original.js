@@ -39,4 +39,4 @@ const sumTopThreeElves = [...getElfTotalCalorieArr(data)]
 
 const day1 = `DAY 1: Part 1: ${max} Part 2: ${sumTopThreeElves}`;
 
-console.log(day1);
+console.log(day1, ...getElfTotalCalorieArr(data));
