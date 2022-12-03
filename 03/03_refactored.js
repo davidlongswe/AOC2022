@@ -13,12 +13,12 @@ const getPriority = (itemStr) => {
 
 const part1 = (items) => {
   let prioritySum = 0;
-  for (let item in items) {
+  for (let item of items) {
     let left = item.slice(0, item.length / 2);
     let right = item.slice(item.length / 2, item.length);
     for (let i = 0; i < left.length; i++) {
-      if (right.includes(item.left[i])) {
-        prioritySum += getPriority(item.left[i]);
+      if (right.includes(left[i])) {
+        prioritySum += getPriority(left[i]);
         break;
       }
     }
