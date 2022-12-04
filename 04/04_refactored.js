@@ -23,26 +23,26 @@ const getRange = (length, startingIndex) => {
   return [...Array(length).keys()].map((inc) => inc + startingIndex);
 };
 
-const setPairs = input.map((setPair) => {
+const pairSets = input.map((pairSet) => {
   return {
     firstPair: new Set(
       getRange(
-        setPair.firstPair[1] - setPair.firstPair[0] + 1,
-        setPair.firstPair[0]
+        pairSet.firstPair[1] - pairSet.firstPair[0] + 1,
+        pairSet.firstPair[0]
       )
     ),
     secondPair: new Set(
       getRange(
-        setPair.secondPair[1] - setPair.secondPair[0] + 1,
-        setPair.secondPair[0]
+        pairSet.secondPair[1] - pairSet.secondPair[0] + 1,
+        pairSet.secondPair[0]
       )
     ),
   };
 });
 
-const part1 = (setPairs) => {
+const part1 = (sets) => {
   let fullyContainedSections = 0;
-  for (let set of setPairs) {
+  for (let set of sets) {
     if (
       getDifference(set.firstPair, set.secondPair).size === 0 ||
       getDifference(set.secondPair, set.firstPair).size === 0
@@ -53,9 +53,9 @@ const part1 = (setPairs) => {
   return fullyContainedSections;
 };
 
-const part2 = (setPairs) => {
+const part2 = (sets) => {
   let sectionsInCommon = 0;
-  for (let set of setPairs) {
+  for (let set of sets) {
     if (
       getOverlap(set.firstPair, set.secondPair).size > 0 ||
       getOverlap(set.secondPair, set.firstPair).size > 0
@@ -66,4 +66,4 @@ const part2 = (setPairs) => {
   return sectionsInCommon;
 };
 
-console.log(part1(setPairs), part2(setPairs));
+console.log(part1(pairSets), part2(pairSets));
