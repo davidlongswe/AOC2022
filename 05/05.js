@@ -28,7 +28,9 @@ const instructions = input[1].split("\r\n").map((x) => {
 });
 
 const moveObjects = (stacksArr, robotModel) => {
-  let stacksCopy = [...stacksArr];
+  var stacksCopy = stacksArr.map(function (arr) {
+    return arr.slice();
+  });
   for (let i = 0; i < instructions.length; i++) {
     let amount = instructions[i].amount;
     let from = instructions[i].originStack - 1;
