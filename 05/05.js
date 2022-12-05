@@ -4,17 +4,17 @@ const input = fs
   .split("\r\n\r\n")
   .filter((x) => x);
 
-const stacks = {
-  stack1: "RPCDBG",
-  stack2: "HVG",
-  stack3: "NSQDJPM",
-  stack4: "PSLGDCNM",
-  stack5: "JBNCPFLS",
-  stack6: "QBDZVGTS",
-  stack7: "BZMHFTQ",
-  stack8: "CMDBF",
-  stack9: "FCQG",
-};
+const stacks = [
+  ["R", "P", "C", "D", "B", "G"],
+  ["H", "V", "G"],
+  ["N", "S", "Q", "D", "J", "P", "M"],
+  ["P", "S", "L", "G", "D", "C", "N", "M"],
+  ["J", "B", "N", "C", "P", "F", "L", "S"],
+  ["Q", "B", "D", "Z", "V", "G", "T", "S"],
+  ["B", "Z", "M", "H", "F", "T", "Q"],
+  ["C", "M", "D", "B", "F"],
+  ["F", "C", "Q", "G"],
+];
 
 const instructions = input[1].split("\r\n").map((x) => {
   const [amount, originStack, destinationStack] = x
@@ -27,9 +27,34 @@ const instructions = input[1].split("\r\n").map((x) => {
   };
 });
 
-const createStacks = (stacks) => {
-  for (let instruction of instructions) {
+const moveObjects = (stacksArr, robotModel) => {
+  let stacksCopy = [...stacksArr];
+  for (let i = 0; i < instructions.length; i++) {
+    let amount = instructions[i].amount;
+    let from = instructions[i].originStack - 1;
+    let to = instructions[i].destinationStack - 1;
+    if (robotModel === 9000) {
+      for (let j = 0; j < amount; j++) {
+        stacksCopy[to].push(stacksCopy[from].pop());
+      }
+    }
+    if (robotModel === 9001) {
+      stacksCopy[to].push(...stacksCopy[from].splice(-amount));
+    }
   }
+  console.log(getTopItems(stacksCopy));
 };
 
-console.log(instructions);
+const getTopItems = (stacksArr) => {
+  let topItems = "";
+  for (let i = 0; i < stacksArr.length; i++) {
+    topItems += stacksArr[i][stacksArr[i].length - 1];
+  }
+  return topItems;
+};
+
+//part 1
+moveObjects(stacks, 9000);
+
+//part 2
+moveObjects(stacks, 9001);
