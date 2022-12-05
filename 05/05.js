@@ -23,7 +23,7 @@ const instructions = input[1].split("\r\n").map((x) => {
   };
 });
 
-console.log(indices);
+console.log(stackInfo, indices, instructions);
 
 const createStacks = () => {
   for (let i = 0; i < indices.length; i++) {}
