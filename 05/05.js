@@ -4,13 +4,17 @@ const input = fs
   .split("\r\n\r\n")
   .filter((x) => x);
 
-const stackInfo = input[0].split("\r\n").map((x) => {
-  return x.replace(/[\[\]']+/g, "").match(/(\s{4}|\[(\S)\])/g);
-});
-
-// const indices = stackInfo[stackInfo.length - 1]
-//   .filter((x) => x.match(/[0-9]+/g))
-//   .map(Number);
+const stacks = {
+  stack1: "RPCDBG",
+  stack2: "HVG",
+  stack3: "NSQDJPM",
+  stack4: "PSLGDCNM",
+  stack5: "JBNCPFLS",
+  stack6: "QBDZVGTS",
+  stack7: "BZMHFTQ",
+  stack8: "CMDBF",
+  stack9: "FCQG",
+};
 
 const instructions = input[1].split("\r\n").map((x) => {
   const [amount, originStack, destinationStack] = x
@@ -23,23 +27,9 @@ const instructions = input[1].split("\r\n").map((x) => {
   };
 });
 
-//console.log(stackInfo, indices, instructions);
-
-const createStacks = (stackInfo, indices) => {
-  let stacks = [];
-  for (let i = 0; i < indices.length - 1; i++) {
-    stacks.push([]);
+const createStacks = (stacks) => {
+  for (let instruction of instructions) {
   }
-  for (let j = 0; j < stackInfo.length - 1; j++) {
-    for (let k = 0; k < stackInfo[j].length; k++) {
-      if (stackInfo[j][k] !== "") {
-        stacks[k].push(stackInfo[j][k]);
-      }
-    }
-  }
-  console.log(stacks);
 };
 
-//createStacks(stackInfo, indices);
-
-console.log(stackInfo);
+console.log(instructions);
