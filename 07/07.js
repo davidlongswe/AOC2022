@@ -38,4 +38,7 @@ const part1 = () => {
     .reduce((a, b) => a + b, 0);
 };
 
+const part2 = () => {};
+
 part1();
+part2();
