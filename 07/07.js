@@ -23,8 +23,6 @@ const getDirectoryTree = (args) => {
   return directories;
 };
 
-const dirTree = getDirectoryTree(args);
-
 const part1 = (directories) => {
   return Object.values(directories)
     .filter((dirSize) => dirSize <= 1e5)
@@ -38,5 +36,5 @@ const part2 = (directories) => {
     .sort((a, b) => a - b)[0];
 };
 
-console.log(part1(dirTree));
-console.log(part2(dirTree));
+console.log(part1(getDirectoryTree(args)));
+console.log(part2(getDirectoryTree(args)));
