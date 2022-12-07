@@ -2,14 +2,12 @@ const fs = require("fs");
 const args = fs
   .readFileSync("07.txt", { encoding: "utf-8" })
   .split("\r\n")
-  .map((x) => x);
+  .map((x) => x.split(" "));
 
 const getDirectoryTree = (args) => {
   const directories = {};
   const parserPath = [];
-
-  for (let c of args) {
-    let [prompt, command, params] = c.split(" ");
+  for (let [prompt, command, params] of args) {
     if (prompt === "$" && command === "cd") {
       params === ".." ? parserPath.pop() : parserPath.push(params);
     } else if (/^\d+$/.test(prompt)) {
@@ -28,20 +26,15 @@ const getDirectoryTree = (args) => {
 const dirTree = getDirectoryTree(args);
 
 const part1 = (directories) => {
-  //1243729
   return Object.values(directories)
     .filter((dirSize) => dirSize <= 1e5)
     .reduce((a, b) => a + b, 0);
 };
 
 const part2 = (directories) => {
-  //4443914
-  const AVAILABLE_SPACE = 70000000;
-  const NEEDED_SPACE = 30000000;
   const ROOT_DIR_SIZE = Object.values(directories).sort((a, b) => b - a)[0];
-  const UNUSED_SPACE = AVAILABLE_SPACE - ROOT_DIR_SIZE;
   return Object.values(directories)
-    .filter((dirSize) => UNUSED_SPACE + dirSize >= NEEDED_SPACE)
+    .filter((dirSize) => 7e7 - ROOT_DIR_SIZE + dirSize >= 3e7)
     .sort((a, b) => a - b)[0];
 };
 
