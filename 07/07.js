@@ -30,18 +30,12 @@ const getDirectories = (arr) => {
 };
 
 const directories = getDirectories(input);
-console.log(directories);
 
 const part1 = () => {
-  let sum = 0;
-  for (let directory of directories.values()) {
-    let directorySize = directory.reduce((a, b) => a + b, 0);
-    let rightFileSize = directorySize <= 100000;
-    if (rightFileSize) {
-      sum += directorySize;
-    }
-  }
-  console.log(sum);
+  return [...directories.values()]
+    .filter((directory) => directory.reduce((a, b) => a + b, 0) <= 100000)
+    .flat()
+    .reduce((a, b) => a + b, 0);
 };
 
 part1();
