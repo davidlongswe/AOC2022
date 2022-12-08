@@ -1,6 +1,4 @@
 const fs = require("fs");
-const { allowedNodeEnvironmentFlags } = require("process");
-
 const treeRows = fs
   .readFileSync("08.txt", { encoding: "utf-8" })
   .split("\r\n")
