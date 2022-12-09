@@ -22,7 +22,6 @@ class Player {
   constructor() {
     this.position = new Position(0, 0);
     this.visPos = [];
-    this.visPos.push(this.position);
   }
 
   move(dir, steps) {
@@ -59,7 +58,6 @@ class AI {
   constructor() {
     this.position = new Position(0, 0);
     this.visPos = [];
-    this.visPos.push(this.position);
   }
 
   move(pp) {
@@ -109,6 +107,8 @@ const player = new Player();
 const ai = new AI();
 
 const chase = (p1, p2, p1moves) => {
+  p1.visPos.push(new Position(0, 0));
+  p2.visPos.push(new Position(0, 0));
   for (let move of p1moves) {
     p1.move(move.direction, move.steps);
   }
@@ -119,3 +119,6 @@ const chase = (p1, p2, p1moves) => {
 
 //Part 1: AI # visited positions
 chase(player, ai, playerMoves);
+
+console.log(player.visPos);
+console.log(ai.visPos);
