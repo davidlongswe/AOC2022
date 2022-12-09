@@ -1,5 +1,6 @@
 const fs = require("fs");
+
 const input = fs
-  .readFileSync("20.txt", { encoding: "utf-8" })
+  .readFileSync("0?.txt", { encoding: "utf-8" })
   .split("\r\n")
-  .filter((x) => x);
+  .map((x) => x);
