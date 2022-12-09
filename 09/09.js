@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const playerMoves = fs
+const moves = fs
   .readFileSync("09.txt", { encoding: "utf-8" })
   .split("\r\n")
   .map((x) => {
@@ -11,114 +11,89 @@ const playerMoves = fs
     };
   });
 
+const movesDef = {
+  U: {
+    x: 0,
+    y: -1,
+  },
+  R: {
+    x: 1,
+    y: 0,
+  },
+  D: {
+    x: 0,
+    y: 1,
+  },
+  L: {
+    x: -1,
+    y: 0,
+  },
+};
+
 class Position {
   constructor(x, y) {
     this.x = x;
     this.y = y;
   }
-}
-
-class Player {
-  constructor() {
-    this.position = new Position(0, 0);
-    this.visPos = [];
+  move(direction) {
+    const delta = movesDef[direction];
+    this.x += delta.x;
+    this.y += delta.y;
   }
-
-  move(dir, steps) {
-    switch (dir) {
-      case "R":
-        for (let i = 0; i < steps; i++) {
-          this.position.x++;
-          this.visPos.push(new Position(this.position.x, this.position.y));
-        }
-        break;
-      case "U":
-        for (let i = 0; i < steps; i++) {
-          this.position.y--;
-          this.visPos.push(new Position(this.position.x, this.position.y));
-        }
-        break;
-      case "L":
-        for (let i = 0; i < steps; i++) {
-          this.position.x--;
-          this.visPos.push(new Position(this.position.x, this.position.y));
-        }
-        break;
-      case "D":
-        for (let i = 0; i < steps; i++) {
-          this.position.y++;
-          this.visPos.push(new Position(this.position.x, this.position.y));
-        }
-        break;
+  follow(position) {
+    const dist = Math.max(
+      Math.abs(this.x - position.x),
+      Math.abs(this.y - position.y)
+    );
+    if (dist > 1) {
+      const directionX = position.x - this.x;
+      const directionY = position.y - this.y;
+      this.x += Math.abs(directionX) === 2 ? directionX / 2 : directionX;
+      this.y += Math.abs(directionY) === 2 ? directionY / 2 : directionY;
     }
   }
 }
 
-class AI {
-  constructor() {
-    this.position = new Position(0, 0);
-    this.visPos = [];
-  }
-
-  move(pp) {
-    const sameRow = pp.y === this.position.y;
-    const sameCol = pp.x === this.position.x;
-    const over = pp.y < this.position.y - 1;
-    const under = pp.y > this.position.y + 1;
-    const right = pp.x > this.position.x + 1;
-    const left = pp.x < this.position.x - 1;
-
-    //straights
-    if (left && sameRow) {
-      this.position.x--;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    } else if (right && sameRow) {
-      this.position.x++;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    } else if (over && sameCol) {
-      this.position.y--;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    } else if (under && sameCol) {
-      this.position.y++;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    }
-    //diagonals
-    if (left && over) {
-      this.position.x--;
-      this.position.y--;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    } else if (right && under) {
-      this.position.x++;
-      this.position.y++;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    } else if (right && over) {
-      this.position.x++;
-      this.position.y--;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    } else if (left && under) {
-      this.position.x--;
-      this.position.y++;
-      this.visPos.push(new Position(this.position.x, this.position.y));
-    }
-  }
-}
-
-const player = new Player();
-const ai = new AI();
-
-const chase = (p1, p2, p1moves) => {
-  p1.visPos.push(new Position(0, 0));
-  p2.visPos.push(new Position(0, 0));
-  for (let move of p1moves) {
-    p1.move(move.direction, move.steps);
-  }
-  for (let p1pos of p1.visPos) {
-    p2.move(p1pos);
-  }
+const markVisited = (x, y, visited) => {
+  visited.add(`${x}-${y}`);
 };
 
-//Part 1: AI # visited positions
-chase(player, ai, playerMoves);
+const part1 = (moves) => {
+  const head = new Position(0, 0);
+  const tail = new Position(0, 0);
+  const visited = new Set();
+  markVisited(0, 0, visited);
 
-console.log(player.visPos);
-console.log(ai.visPos);
+  for (const move of moves) {
+    for (let i = 0; i < move.steps; i++) {
+      head.move(move.direction);
+      tail.follow(head);
+      markVisited(tail.x, tail.y, visited);
+    }
+  }
+  console.log(visited.size);
+};
+
+const part2 = (moves) => {
+  const knots = new Array(10).fill(0).map((_) => new Position(0, 0));
+  const visited = new Set();
+  markVisited(0, 0, visited);
+
+  for (const move of moves) {
+    for (let i = 0; i < move.steps; i++) {
+      knots[0].move(move.direction);
+
+      for (let knot = 1; knot < knots.length; knot++) {
+        const currKnotPos = knots[knot];
+        currKnotPos.follow(knots[knot - 1]);
+      }
+      const endOfRopePos = knots.at(-1);
+      markVisited(endOfRopePos.x, endOfRopePos.y, visited);
+    }
+  }
+  console.log(visited.size);
+};
+
+part1(moves);
+
+part2(moves);
