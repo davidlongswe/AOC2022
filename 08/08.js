@@ -1,11 +1,8 @@
 const fs = require("fs");
-const { allowedNodeEnvironmentFlags } = require("process");
-
 const treeRows = fs
   .readFileSync("08.txt", { encoding: "utf-8" })
   .split("\r\n")
   .map((x) => x.split("").map(Number));
-
 class Tree {
   constructor(x, y, height) {
     this.x = x;
@@ -15,51 +12,36 @@ class Tree {
     this.visible = false;
   }
 }
-
-const createMap = (rowsOfTrees) => {
+const createMap = (rot) => {
   const trees = [];
-  for (let row = 0; row < rowsOfTrees.length; row++) {
-    for (let col = 0; col < rowsOfTrees[row].length; col++) {
-      let currTree = new Tree(col, row, rowsOfTrees[row][col]);
-      if (
-        row === 0 ||
-        col === 0 ||
-        row === rowsOfTrees.length - 1 ||
-        col === rowsOfTrees[row].length - 1
-      ) {
+  for (let r = 0; r < rot.length; r++) {
+    for (let c = 0; c < rot[r].length; c++) {
+      let currTree = new Tree(c, r, rot[r][c]);
+      if (r == 0 || c == 0 || r == rot.length - 1 || c == rot[r].length - 1) {
         currTree.isEdgeTree = true;
         currTree.visible = true;
       }
       trees.push(currTree);
     }
   }
+  setVisibilityOfInnerTrees(trees);
   return trees;
 };
-
-const setVisibilityOfInnerTrees = (trees) => {
-  for (let i = 0; i < trees.length; i++) {
-    let currTree = trees[i];
+const setVisibilityOfInnerTrees = (ts) => {
+  for (let t of ts) {
+    let currTree = t;
     if (currTree.isEdgeTree) {
       continue;
     }
-    let colBelow = trees.filter(
-      (tree) => tree.x === currTree.x && tree.y > currTree.y
-    );
-    let colAbove = trees.filter(
-      (tree) => tree.x === currTree.x && tree.y < currTree.y
-    );
-
-    let rowRight = trees.filter(
-      (tree) => tree.y === currTree.y && tree.x > currTree.x
-    );
-    let rowLeft = trees.filter(
-      (tree) => tree.y === currTree.y && tree.x < currTree.x
-    );
+    let colBelow = ts.filter((tr) => tr.x === currTree.x && tr.y > currTree.y);
+    let colAbove = ts.filter((tr) => tr.x === currTree.x && tr.y < currTree.y);
+    let rowRight = ts.filter((tr) => tr.y === currTree.y && tr.x > t.x);
+    let rowLeft = ts.filter((tr) => tr.y === currTree.y && tr.x < currTree.x);
     if (
-      colAbove.every((tree) => tree.height < currTree.height) ||
-      colBelow.every((tree) => tree.height < currTree.height) ||
-      rowRight.every((tree) => tree.height < currTree.height) ||
-      rowLeft.every((tree) => tree.height < currTree.height)
+      colAbove.every((tr) => tr.height < currTree.height) ||
+      colBelow.every((tr) => tr.height < currTree.height) ||
+      rowRight.every((tr) => tr.height < currTree.height) ||
+      rowLeft.every((tr) => tr.height < currTree.height)
     ) {
       currTree.visible = true;
     } else {
@@ -68,89 +50,57 @@ const setVisibilityOfInnerTrees = (trees) => {
   }
 };
 
-const getMaxScenicScore = (trees) => {
-  let scenicScores = [];
-  for (let i = 0; i < trees.length; i++) {
-    let currTree = trees[i];
+const increaseScore = (treeArr, currTree) => {
+  let score = 0;
+  for (let t of treeArr) {
+    if (t.height >= currTree.height) {
+      score++;
+      break;
+    }
+    if (t.height < currTree.height) {
+      score++;
+    }
+  }
+  return score;
+};
+
+const getMaxScenicScore = (ts) => {
+  let scores = [];
+  let scoreBelow = 0;
+  let scoreAbove = 0;
+  let scoreRight = 0;
+  let scoreLeft = 0;
+
+  for (let t of ts) {
+    let currTree = t;
     if (currTree.isEdgeTree) {
       continue;
     }
-    let scenicScoreBelow = 0;
-    let scenicScoreAbove = 0;
-    let scenicScoreRight = 0;
-    let scenicScoreLeft = 0;
+    let tsBelow = ts.filter((tr) => tr.x === currTree.x && tr.y > currTree.y);
+    scoreBelow = increaseScore(tsBelow, currTree, scoreBelow);
 
-    let treesBelow = trees.filter(
-      (tree) => tree.x === currTree.x && tree.y > currTree.y
-    );
-
-    for (let j = 0; j < treesBelow.length; j++) {
-      if (treesBelow[j].height >= currTree.height) {
-        scenicScoreBelow++;
-        break;
-      }
-      if (treesBelow[j].height < currTree.height) {
-        scenicScoreBelow++;
-      }
-    }
-
-    let treesAbove = trees
-      .filter((tree) => tree.x === currTree.x && tree.y < currTree.y)
+    let tsAbove = ts
+      .filter((tr) => tr.x === currTree.x && tr.y < currTree.y)
       .reverse();
+    scoreAbove = increaseScore(tsAbove, currTree, scoreAbove);
 
-    for (let j = 0; j < treesAbove.length; j++) {
-      if (treesAbove[j].height >= currTree.height) {
-        scenicScoreAbove++;
-        break;
-      }
-      if (treesAbove[j].height < currTree.height) {
-        scenicScoreAbove++;
-      }
-    }
+    let tsRight = ts.filter((tr) => tr.y === currTree.y && tr.x > currTree.x);
+    scoreRight = increaseScore(tsRight, currTree, scoreRight);
 
-    let treesRight = trees.filter(
-      (tree) => tree.y === currTree.y && tree.x > currTree.x
-    );
-
-    for (let j = 0; j < treesRight.length; j++) {
-      if (treesRight[j].height >= currTree.height) {
-        scenicScoreRight++;
-        break;
-      }
-      if (treesRight[j].height < currTree.height) {
-        scenicScoreRight++;
-      }
-    }
-
-    let treesLeft = trees
-      .filter((tree) => tree.y === currTree.y && tree.x < currTree.x)
+    let tsLeft = ts
+      .filter((tr) => tr.y === currTree.y && tr.x < currTree.x)
       .reverse();
-    for (let j = 0; j < treesLeft.length; j++) {
-      if (treesLeft[j].height >= currTree.height) {
-        scenicScoreLeft++;
-        break;
-      }
-      if (treesLeft[j].height < currTree.height) {
-        scenicScoreLeft++;
-      }
-    }
+    scoreLeft = increaseScore(tsLeft, currTree, scoreLeft);
 
-    scenicScores.push(
-      scenicScoreAbove * scenicScoreBelow * scenicScoreLeft * scenicScoreRight
-    );
+    scores.push(scoreAbove * scoreBelow * scoreLeft * scoreRight);
   }
-  return scenicScores.sort((a, b) => b - a)[0];
+  return scores.sort((a, b) => b - a)[0];
 };
 
-const trees = createMap(treeRows);
-setVisibilityOfInnerTrees(trees);
-
-const getVisibleTrees = (trees) => {
-  return trees.filter((tree) => tree.visible).length;
-};
+const treeMap = createMap(treeRows);
 
 //part 1
-console.log(getVisibleTrees(trees));
+console.log(treeMap.filter((tree) => tree.visible).length);
 
 //part 2
-console.log(getMaxScenicScore(trees));
+console.log(getMaxScenicScore(treeMap));
