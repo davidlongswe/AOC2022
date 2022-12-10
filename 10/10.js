@@ -28,11 +28,14 @@ const part2 = () => {
   let CRTx = -1;
   let CRT = [];
   let CRTLine = "";
-  const hashOrSpace = x == CRTx || x == CRTx - 1 || x == CRTx + 1;
+  const hashOrSpace = () =>
+    x == CRTx || x == CRTx - 1 || x == CRTx + 1
+      ? (CRTLine += "#")
+      : (CRTLine += " ");
   instructions.forEach((instruction) => {
     let [_, amount] = instruction.split(" ");
     CRTx++;
-    hashOrSpace ? (CRTLine += "#") : (CRTLine += " ");
+    hashOrSpace();
     if (CRTx == 39) {
       CRT.push(CRTLine);
       CRTLine = "";
@@ -41,7 +44,7 @@ const part2 = () => {
     if (amount) {
       amount = parseInt(amount);
       CRTx++;
-      hashOrSpace ? (CRTLine += "#") : (CRTLine += " ");
+      hashOrSpace();
       if (CRTx == 39) {
         CRT.push(CRTLine);
         CRTLine = "";
