@@ -1,7 +1,5 @@
 const fs = require("fs");
-
 const data = fs.readFileSync("11.txt", { encoding: "utf-8" }).split("\r\n\r\n");
-
 class Monkey {
   constructor(id, items, op, amount, divisor, catchers) {
     this.id = id;
@@ -12,39 +10,24 @@ class Monkey {
     this.catchers = catchers;
     this.itemsInspected = 0;
   }
-
-  printItems() {
-    for (let item of this.items) {
-      console.log(item.worryLevel);
-    }
-  }
-
-  increaseItemsInspected() {
-    this.itemsInspected++;
-  }
 }
-
 class Item {
   constructor(worryLevel) {
     this.worryLevel = worryLevel;
   }
-
   transform(operator, amount) {
     this.worryLevel =
       operator === "*"
         ? (this.worryLevel *= amount)
         : (this.worryLevel += amount);
   }
-
   divBy3() {
     this.worryLevel = Math.floor(this.worryLevel / 3);
   }
-
   divByDivProduct(divProduct) {
     this.worryLevel %= divProduct;
   }
-
-  divisible(divisor) {
+  isDivisibleBy(divisor) {
     return this.worryLevel % divisor === 0 ? true : false;
   }
 }
@@ -66,7 +49,6 @@ const getMonkeys = () => {
       +monkeyInfo[4].match(/\d+/gi),
       +monkeyInfo[5].match(/\d+/gi),
     ];
-
     monkeys.push(new Monkey(monkeyId, sItems, op, amount, divisor, catchers));
   }
   return monkeys;
@@ -79,43 +61,32 @@ const playKeepAway = (part) => {
   for (let i = 0; i < rounds; i++) {
     for (let monkey of monkeys) {
       for (let item of monkey.items) {
-        monkey.increaseItemsInspected();
+        monkey.itemsInspected++;
         let multiplyBy = isNaN(monkey.amount) ? item.worryLevel : monkey.amount;
         item.transform(monkey.op, multiplyBy);
-
         if (part === "p1") {
           item.divBy3();
         } else if (part === "p2") {
           item.divByDivProduct(divProduct);
         }
-
         let catcher;
-
-        if (item.divisible(monkey.divisor)) {
-          catcher = monkeys.find(
-            (newMonkey) => newMonkey.id === monkey.catchers[0]
-          );
+        if (item.isDivisibleBy(monkey.divisor)) {
+          catcher = monkeys.find((m) => m.id === monkey.catchers[0]);
           catcher.items.push(item);
         } else {
-          catcher = monkeys.find(
-            (newMonkey) => newMonkey.id === monkey.catchers[1]
-          );
+          catcher = monkeys.find((m) => m.id === monkey.catchers[1]);
           catcher.items.push(item);
         }
         monkey.items = monkey.items.filter((monkey) => monkey.id !== monkey.id);
       }
     }
   }
-  let inspectedList = [];
-  for (let monkey of monkeys) {
-    inspectedList.push(monkey.itemsInspected);
-  }
-  const sorted = inspectedList.sort((a, b) => b - a);
-  console.log(sorted.at(0) * sorted.at(1));
+  let sortedInspectedList = monkeys
+    .map((m) => m.itemsInspected)
+    .sort((a, b) => b - a);
+  console.log(sortedInspectedList.at(0) * sortedInspectedList.at(1));
 };
-
 //part 1
 playKeepAway("p1");
-
 //part 2
 playKeepAway("p2");
