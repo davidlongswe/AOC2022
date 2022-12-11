@@ -40,8 +40,8 @@ class Item {
     this.worryLevel = Math.floor(this.worryLevel / 3);
   }
 
-  divByGCD(lcm) {
-    this.worryLevel %= lcm;
+  divByDivProduct(divProduct) {
+    this.worryLevel %= divProduct;
   }
 
   divisible(divisor) {
@@ -72,8 +72,10 @@ const getMonkeys = () => {
   return monkeys;
 };
 
-const playKeepAway = (monkeys, part) => {
+const playKeepAway = (part) => {
+  let monkeys = getMonkeys();
   let rounds = part === "p1" ? 20 : 10000;
+  let divProduct = monkeys.map((x) => x.divisor).reduce((a, b) => a * b);
   for (let i = 0; i < rounds; i++) {
     for (let monkey of monkeys) {
       for (let item of monkey.items) {
@@ -84,7 +86,7 @@ const playKeepAway = (monkeys, part) => {
         if (part === "p1") {
           item.divBy3();
         } else if (part === "p2") {
-          item.divByGCD(monkeys.map((x) => x.divisor).reduce((a, b) => a * b));
+          item.divByDivProduct(divProduct);
         }
 
         let catcher;
@@ -104,6 +106,7 @@ const playKeepAway = (monkeys, part) => {
       }
     }
   }
+  let inspectedList = [];
   for (let monkey of monkeys) {
     inspectedList.push(monkey.itemsInspected);
   }
@@ -111,11 +114,8 @@ const playKeepAway = (monkeys, part) => {
   console.log(sorted.at(0) * sorted.at(1));
 };
 
-const monkeys = getMonkeys();
-let inspectedList = [];
-
 //part 1
-playKeepAway(monkeys, "p1");
+playKeepAway("p1");
 
 //part 2
-playKeepAway(monkeys, "p2");
+playKeepAway("p2");
