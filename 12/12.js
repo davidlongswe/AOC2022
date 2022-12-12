@@ -1,5 +1,4 @@
 const fs = require("fs");
-
 const data = fs.readFileSync("12.txt", { encoding: "utf-8" }).split("\r\n");
 
 const dirs = [
@@ -9,34 +8,35 @@ const dirs = [
   [-1, 0],
 ];
 
-function getSteps(part) {
-  const starts = [];
+const getMapInfo = (part) => {
+  const startingPoints = [];
   let end;
-
-  const map = data.map((line, i) =>
-    line.split("").map((char, j) => {
+  const map = data.map((line, x) =>
+    line.split("").map((char, y) => {
       let elevation;
       if (char === "S" || (part === 2 && char === "a")) {
-        elevation = 0;
-        starts.push([i, j]);
+        startingPoints.push([x, y]);
+        return (elevation = 0);
       } else if (char === "E") {
-        elevation = 25;
-        end = [i, j];
-      } else {
-        elevation = char.codePointAt(0) - "a".codePointAt(0);
+        end = [x, y];
+        return (elevation = 25);
       }
-      return elevation;
+      return char.codePointAt(0) - "a".codePointAt(0);
     })
   );
+  return { map: map, startingPoints: startingPoints, end: end };
+};
 
-  const queue = starts.map((start) => ({ pos: start, steps: 0 }));
-  const seen = [];
+const djikstras = (part) => {
+  const { map, startingPoints, end } = getMapInfo(part);
+  const queue = startingPoints.map((start) => ({ pos: start, steps: 0 }));
+  const visited = [];
   while (queue.length) {
     const {
       pos: [i, j],
       steps,
     } = queue.shift();
-    if (seen[i]?.[j]) {
+    if (visited[i]?.[j]) {
       continue;
     }
     if (i === end[0] && j === end[1]) {
@@ -47,16 +47,16 @@ function getSteps(part) {
       if (
         map[i + di]?.[j + dj] === undefined ||
         map[i + di][j + dj] > map[i][j] + 1 ||
-        seen[i + di]?.[j + dj]
+        visited[i + di]?.[j + dj]
       ) {
         continue;
       }
       queue.push({ pos: [i + di, j + dj], steps: steps + 1 });
     }
-    seen[i] = seen[i] ?? [];
-    seen[i][j] = 1;
+    visited[i] = visited[i] ?? [];
+    visited[i][j] = 1;
   }
-}
+};
 
-getSteps(1);
-getSteps(2);
+djikstras(1);
+djikstras(2);
