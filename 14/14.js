@@ -1,87 +1,81 @@
+//DISCLAIMER (NEEDED HELP TODAY)
 const fs = require("fs");
 
-const caveScan = fs
-  .readFileSync("14.txt", { encoding: "utf-8" })
-  .split("\r\n")
-  .map((row) =>
-    row
-      .split(" -> ")
-      .map((coords) => coords.split(","))
-      .map((coord) => {
-        return {
-          xCoord: parseInt(coord[0]),
-          yCoord: parseInt(coord[1]),
-        };
-      })
+const input = fs.readFileSync("14.txt", { encoding: "utf-8" });
+
+const sandStartingCoord = [500, 0];
+
+let cavesInput = input
+  .split("\n")
+  .map((row) => row.split(" -> ").map((coord) => coord.split(",").map(Number)));
+
+let xMax = Math.max(...cavesInput.flat().map((coords) => coords[0])) * 2;
+let yMax = Math.max(...cavesInput.flat().map((coords) => coords[1]));
+
+const getCaves = () => {
+  let cavesMatrix = Array.from({ length: yMax + 3 }, () =>
+    Array(xMax).fill(".")
   );
 
-class CaveObject {
-  constructor(x, y, sym) {
-    this.x = x;
-    this.y = y;
-    this.sym = sym;
-  }
-}
-
-const placeObjectsInCave = (cave) => {
-  for (let r of caveScan) {
-    for (let i = 0; i < r.length - 1; i++) {
-      let xOrig = r[i].xCoord;
-      let yOrig = r[i].yCoord;
-      let xDest = r[i + 1]?.xCoord;
-      let yDest = r[i + 1]?.yCoord;
-      if (xOrig === xDest) {
-        for (let j = yOrig; j < yDest + 1; j++) {
-          let caveObj;
-          for (let row in cave) {
-            let tempCaveObj = row.find((obj) => obj.x === xOrig && obj.y === j);
-            if (tempCaveObj) {
-              caveObj = tempCaveObj;
-            }
-          }
-          console.log(caveObj);
-          //caveObj.sym = "#";
-        }
-      }
-      if (yOrig === yDest) {
-        let start = xOrig < xDest ? xOrig : xDest;
-        let end = xDest > xOrig ? xDest : xOrig;
-        for (let k = start; k < end + 1; k++) {
-          let caveObj = cave[i].find((obj) => obj.y === yOrig && obj.x === k);
-          //console.log("i:" + i, k, yOrig, caveObj);
-          //caveObj.sym = "#";
-        }
+  const line = (from, to) => {
+    let min = [Math.min(from[0], to[0]), Math.min(from[1], to[1])];
+    let max = [Math.max(from[0], to[0]), Math.max(from[1], to[1])];
+    for (let i = min[0]; i <= max[0]; i++) {
+      for (let j = min[1]; j <= max[1]; j++) {
+        cavesMatrix[j][i] = "#";
       }
     }
-  }
-  return cave;
+  };
+
+  cavesInput.forEach((point) => {
+    point.forEach((p, i) => {
+      i && line(point[i - 1], p);
+    });
+  });
+
+  return cavesMatrix;
 };
 
-const createCave = () => {
-  let xCoords = caveScan.flat().map((x) => x.xCoord);
-  let yCoords = caveScan.flat().map((x) => x.yCoord);
-  let xMin = xCoords.sort((a, b) => a - b)[0];
-  let xMax = xCoords.sort((a, b) => b - a)[0];
-  let yMin = yCoords.sort((a, b) => a - b)[0];
-  let yMax = yCoords.sort((a, b) => b - a)[0];
+const dropSand = (cavesMatrix, part2) => {
+  let sand = sandStartingCoord.slice();
+  let endlessPouring = false;
 
-  let cave = [];
-
-  for (let i = yMin; i < yMax + 1; i++) {
-    let caveRow = [];
-    for (let j = xMin; j < xMax + 1; j++) {
-      caveRow.push(new CaveObject(j, i, "."));
+  while (true) {
+    if (sand[1] > yMax + 1) {
+      endlessPouring = true;
+      break;
     }
-    cave.push(caveRow);
+    if (cavesMatrix[sand[1] + 1][sand[0]] == ".") {
+      sand[1]++;
+      continue;
+    }
+    if (cavesMatrix[sand[1] + 1][sand[0] - 1] == ".") {
+      sand[1]++;
+      sand[0]--;
+      continue;
+    }
+    if (cavesMatrix[sand[1] + 1][sand[0] + 1] == ".") {
+      sand[1]++;
+      sand[0]++;
+      continue;
+    }
+    break;
   }
 
-  let caveWithObjs = placeObjectsInCave(cave);
-
-  return caveWithObjs;
+  cavesMatrix[sand[1]][sand[0]] = "o";
+  return part2 ? sand[1] == 0 : endlessPouring;
 };
 
-const simulateSand = () => {};
+const simulate = (part2 = false, drops = 0) => {
+  if (part2)
+    cavesInput.push([
+      [0, yMax + 2],
+      [xMax * 2, yMax + 2],
+    ]);
+  let caves = getCaves();
+  while (!dropSand(caves, part2)) drops++;
+  return drops;
+};
 
-const cave = createCave();
-
-console.log(cave);
+console.log(simulate());
+console.log(simulate(true) + 1);
